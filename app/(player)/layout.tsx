@@ -7,6 +7,8 @@ import { useGame } from '@/src/lib/GameContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
+export const dynamic = 'force-dynamic';
+
 export default function PlayerLayout({ children }: { children: React.ReactNode }) {
   const { cash, portfolioValue } = useGame();
   const { data: session, status } = useSession();
