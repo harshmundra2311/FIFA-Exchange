@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-export async function GET(req: Request, { params }: { params: { name: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ name: string }> }) {
   try {
     const { name } = await params;
     const filePath = path.join(process.cwd(), 'public', 'avatars', name);
