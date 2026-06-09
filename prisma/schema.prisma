@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             String        @id @default(uuid())
+  username       String        @unique
+  fullName       String?
+  avatarSeed     String?
+  passwordHash   String
+  role           String        @default("USER") // USER or ADMIN
+  cashBalance    Float         @default(10000)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  
+  holdings       Holding[]
+  transactions   Transaction[]
+}
+
+model InviteCode {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  isUsed    Boolean  @default(false)
+  usedBy    String?  // Username who used it
+  createdAt DateTime @default(now())
+}
+
+model Team {
+  id             String   @id
+  name           String
+  code           String
+  flagUrl        String
+  tier           Int
+  price          Float
+  priceChange24h Float    @default(0)
+  groupName      String   @default("Group A")
+  matchday       String   @default("Matchday 1")
+  isLocked       Boolean  @default(false)
+  
+  // Stats
+  goalsScored    Int      @default(0)
+  goalsConceded  Int      @default(0)
+  cleanSheets    Int      @default(0)
+  winDrawLoss    String   @default("0-0-0")
+  
+  // Storing simple stringified arrays for history and fixtures for MVP
+  historyJson    String   @default("[]") 
+  fixturesJson   String   @default("[]") 
+
+  holdings       Holding[]
+  transactions   Transaction[]
+}
+
+model Match {
+  id        String   @id @default(uuid())
+  teamAId   String
+  teamBId   String
+  stage     String
+  status    String   @default("PENDING") // PENDING, COMPLETED
+  goalsA    Int      @default(0)
+  goalsB    Int      @default(0)
+  kickoffTime DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Holding {
+  id              String   @id @default(uuid())
+  userId          String
+  teamId          String
+  shares          Int
+  averageBuyPrice Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+
+  @@unique([userId, teamId])
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  userId    String
+  teamId    String
+  type      String   // BUY or SELL
+  shares    Int
+  price     Float
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+}
